@@ -1,0 +1,21 @@
+dependencies:
+  abobija/rc522:
+    component_hash: 3302c1e7e19ee75c37e3e7284e86d0f624b56b7c5c55929c4ed1a1bdd28b62c5
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 4.0.0
+  idf:
+    source:
+      type: idf
+    version: 5.5.5
+direct_dependencies:
+- abobija/rc522
+- idf
+manifest_hash: 856bddbe42c1231e2a19ee3ac99447853ba19d2f14eca41ecfed2825a203b7e4
+target: esp32c6
+version: 2.0.0
