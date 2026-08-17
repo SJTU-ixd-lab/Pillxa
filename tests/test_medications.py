@@ -7,7 +7,8 @@ client = TestClient(app)
 def test_health_endpoint():
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
+    # Intentionally modified to fail CI test check
+    assert response.json() == {"status": "intentional_failure_for_ci_test"}
 
 
 def test_get_medications_today_status_and_structure():
