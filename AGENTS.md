@@ -36,6 +36,35 @@ conda run -n pillbox-backend <command>
 
 ---
 
-## 4. Container & Service Guidelines
+## 4. Container & Docker Deployment Guidelines
 
 - **Docker Consistency**: Ensure `backend/Dockerfile` and `docker-compose.yml` stay in sync with `requirements.txt` and the Python 3.10 runtime environment.
+- **Port Mapping**:
+  - Container internal port: `8000`
+  - Host mapped port: `8011` (to avoid conflicts with other existing server services)
+- **Standard Server Operations**:
+  - Build & Start: `docker compose up -d --build`
+  - Check Status: `docker compose ps`
+  - View Logs: `docker compose logs -f backend`
+  - Stop Service: `docker compose down`
+
+---
+
+## 5. Server Public Access & Reverse Proxy Architecture
+
+- **Public Base URL**: `https://ixd.sjtu.edu.cn/pillxa-demo`
+- **Architecture Topology**:
+  `Client (HTTPS)` -> `Nginx (Port 443 / 80)` -> `Host (127.0.0.1:8011)` -> `Docker Container (Port 8000)`
+- **Nginx Reverse Proxy Rule**:
+  ```nginx
+  location /pillxa-demo/ {
+      proxy_pass http://127.0.0.1:8011/;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+  }
+  ```
+- **Public Verification Endpoints**:
+  - Health Check: `curl -i https://ixd.sjtu.edu.cn/pillxa-demo/health`
+  - Today's Medication: `curl -i https://ixd.sjtu.edu.cn/pillxa-demo/medications/today`
