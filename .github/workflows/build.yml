@@ -34,6 +34,9 @@ jobs:
         working-directory: app
         run: flutter test
 
+      - name: Accept Android SDK Licenses
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
       - name: Build Android Debug APK
         working-directory: app
         run: flutter build apk --debug
