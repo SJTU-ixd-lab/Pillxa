@@ -59,10 +59,10 @@ jobs:
       - name: Accept Android SDK Licenses
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
-      - name: Build Release APK
+      - name: Build Split-per-ABI APKs
         working-directory: app
         run: |
-          flutter build apk --release \
+          flutter build apk --release --split-per-abi \
             --build-name=${{ steps.get_version.outputs.VERSION }} \
             --build-number=${{ github.run_number }}
 
@@ -73,11 +73,23 @@ jobs:
             --build-name=${{ steps.get_version.outputs.VERSION }} \
             --build-number=${{ github.run_number }}
 
-      - name: Prepare Artifacts for Release
+      - name: Prepare Artifacts & Calculate SHA256
         run: |
           mkdir -p release-assets
-          cp app/build/app/outputs/flutter-apk/app-release.apk release-assets/pillxa-${{ steps.get_version.outputs.TAG_NAME }}-release.apk
-          cp app/build/app/outputs/bundle/release/app-release.aab release-assets/pillxa-${{ steps.get_version.outputs.TAG_NAME }}-release.aab
+          TAG="${{ steps.get_version.outputs.TAG_NAME }}"
+
+          # Copy Split APKs
+          cp app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk release-assets/pillxa-${TAG}-android-arm64-v8a.apk
+          cp app/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk release-assets/pillxa-${TAG}-android-armeabi-v7a.apk
+          cp app/build/app/outputs/flutter-apk/app-x86_64-release.apk release-assets/pillxa-${TAG}-android-x86_64.apk
+
+          # Copy AAB
+          cp app/build/app/outputs/bundle/release/app-release.aab release-assets/pillxa-${TAG}-android.aab
+
+          # Generate SHA256 Checksums
+          cd release-assets
+          sha256sum * > checksums-sha256.txt
+          cd ..
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -88,7 +100,7 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            release-assets/pillxa-${{ steps.get_version.outputs.TAG_NAME }}-release.apk
-            release-assets/pillxa-${{ steps.get_version.outputs.TAG_NAME }}-release.aab
+            release-assets/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
