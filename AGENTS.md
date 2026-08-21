@@ -31,7 +31,7 @@ conda run -n pillbox-backend <command>
 - **Zero Tolerance for Broken Tests**: A PR with failing tests or zero collected tests must not be merged.
 - **Local Pre-push Verification**: Always execute and verify the full test suite locally before pushing:
   ```bash
-  conda run -n pillbox-backend pytest -v
+  conda run -n pillbox-backend pytest backend/tests -v
   ```
 
 ---

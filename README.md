@@ -13,10 +13,9 @@
 
 ```text
 Pillxa/
-├── backend/            # 后端服务（FastAPI 业务逻辑、依赖清单与 Docker 配置）
+├── backend/            # 后端服务（FastAPI 业务逻辑、依赖清单、测试套件与 Docker 配置）
 ├── app/                # 用户客户端（移动端 / 前端应用，规划中）
 ├── firmware/           # 硬件固件（智能药盒嵌入式控制程序，规划中）
-├── tests/              # 自动化测试套件
 ├── docker-compose.yml  # Docker 容器编排配置
 ├── AGENTS.md           # 开发者与 Agent 协作规范
 └── README.md           # 项目主说明文档
@@ -24,10 +23,9 @@ Pillxa/
 
 ### 主要模块说明
 
-- **`backend/`**：基于 FastAPI 的后端服务，负责用药计划数据分发、设备状态同步与服务健康监测；管理后端专属依赖（`backend/requirements.txt`）。
+- **`backend/`**：基于 FastAPI 的后端服务，负责用药计划数据分发、设备状态同步与服务健康监测；内置后端专属依赖（`backend/requirements.txt`）与接口自动化测试套件（`backend/tests/`）。
 - **`app/`**：用户客户端，提供用药计划管理、服药提醒推送与药盒设备绑定交互。
 - **`firmware/`**：智能药盒硬件固件，负责出药控制、传感器数据采集与声光提醒。
-- **`tests/`**：后端接口自动化测试，保障服务稳定与数据模型一致。
 
 ---
 
@@ -63,7 +61,7 @@ conda run -n pillbox-backend uvicorn backend.main:app --reload --port 8000
 ### 3. 运行自动化测试
 
 ```bash
-conda run -n pillbox-backend pytest -v
+conda run -n pillbox-backend pytest backend/tests -v
 ```
 
 ---
