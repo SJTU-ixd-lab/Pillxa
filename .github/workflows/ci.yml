@@ -30,3 +30,26 @@ jobs:
       - name: Run Backend Pytest
         run: |
           pytest backend/tests
+
+  flutter-test:
+    name: Run Flutter Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: Install Flutter Dependencies
+        working-directory: app
+        run: flutter pub get
+
+      - name: Run Flutter Tests
+        working-directory: app
+        run: flutter test
+
