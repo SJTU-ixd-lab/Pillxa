@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
-    name: Run Pytest
+  backend-test:
+    name: Run Pytest (Backend)
     runs-on: ubuntu-latest
 
     steps:
@@ -31,25 +31,43 @@ jobs:
         run: |
           pytest backend/tests
 
-  flutter-test:
-    name: Run Flutter Tests
+  flutter-ci:
+    name: Flutter Lint, Test & Smoke Build
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: "stable"
+          channel: 'stable'
           cache: true
 
       - name: Install Flutter Dependencies
         working-directory: app
         run: flutter pub get
 
+      - name: Run Flutter Analyzer (Lint)
+        working-directory: app
+        run: flutter analyze
+
       - name: Run Flutter Tests
         working-directory: app
         run: flutter test
+
+      - name: Accept Android SDK Licenses
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+      - name: Android Build Smoke Test (Debug APK)
+        working-directory: app
+        run: flutter build apk --debug
+
 

@@ -1,0 +1,94 @@
+name: Release Android App
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release version tag (e.g. v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+
+permissions:
+  contents: write
+
+jobs:
+  release-android:
+    name: Build & Release Android App (APK & AAB)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Determine Version
+        id: get_version
+        run: |
+          if [ -n "${{ github.event.inputs.tag_name }}" ]; then
+            TAG_NAME="${{ github.event.inputs.tag_name }}"
+          else
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
+          fi
+          VERSION="${TAG_NAME#v}"
+          echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_OUTPUT
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Building version ${VERSION} from tag ${TAG_NAME}"
+
+      - name: Install Dependencies
+        working-directory: app
+        run: flutter pub get
+
+      - name: Run Tests
+        working-directory: app
+        run: flutter test
+
+      - name: Accept Android SDK Licenses
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+      - name: Build Release APK
+        working-directory: app
+        run: |
+          flutter build apk --release \
+            --build-name=${{ steps.get_version.outputs.VERSION }} \
+            --build-number=${{ github.run_number }}
+
+      - name: Build Release AAB (App Bundle)
+        working-directory: app
+        run: |
+          flutter build appbundle --release \
+            --build-name=${{ steps.get_version.outputs.VERSION }} \
+            --build-number=${{ github.run_number }}
+
+      - name: Prepare Artifacts for Release
+        run: |
+          mkdir -p release-assets
+          cp app/build/app/outputs/flutter-apk/app-release.apk release-assets/pillxa-${{ steps.get_version.outputs.TAG_NAME }}-release.apk
+          cp app/build/app/outputs/bundle/release/app-release.aab release-assets/pillxa-${{ steps.get_version.outputs.TAG_NAME }}-release.aab
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.get_version.outputs.TAG_NAME }}
+          name: "Release ${{ steps.get_version.outputs.TAG_NAME }}"
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+          files: |
+            release-assets/pillxa-${{ steps.get_version.outputs.TAG_NAME }}-release.apk
+            release-assets/pillxa-${{ steps.get_version.outputs.TAG_NAME }}-release.aab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
