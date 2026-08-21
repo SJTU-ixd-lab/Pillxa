@@ -12,7 +12,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # 复制后端业务代码
-COPY backend/ ./backend
+COPY . ./backend
 
 EXPOSE 8000
 

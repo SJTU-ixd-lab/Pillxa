@@ -2,8 +2,8 @@ services:
   backend:
     build:
       context: .
-      dockerfile: backend/Dockerfile
+      dockerfile: Dockerfile
     container_name: pillbox-backend
     ports:
-      - "8000:8000"
+      - "8011:8000"
     restart: unless-stopped
