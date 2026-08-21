@@ -70,4 +70,27 @@ jobs:
         working-directory: app
         run: flutter build apk --debug
 
+  ios-ci:
+    name: iOS Build Validation (macOS)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Flutter Dependencies
+        working-directory: app
+        run: flutter pub get
+
+      - name: Validate iOS Build (No Codesign)
+        working-directory: app
+        run: flutter build ios --no-codesign
+
+
 

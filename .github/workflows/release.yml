@@ -104,3 +104,56 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  build-ios:
+    name: Build & Package iOS App (macOS)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Determine Version
+        id: get_version
+        run: |
+          if [ -n "${{ github.event.inputs.tag_name }}" ]; then
+            TAG_NAME="${{ github.event.inputs.tag_name }}"
+          else
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
+          fi
+          VERSION="${TAG_NAME#v}"
+          echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_OUTPUT
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Install Dependencies
+        working-directory: app
+        run: flutter pub get
+
+      - name: Build iOS Release (No Codesign)
+        working-directory: app
+        run: |
+          flutter build ios --release --no-codesign \
+            --build-name=${{ steps.get_version.outputs.VERSION }} \
+            --build-number=${{ github.run_number }}
+
+      - name: Package Unsigned IPA
+        run: |
+          mkdir -p Payload
+          cp -r app/build/ios/iphoneos/Runner.app Payload/
+          zip -r pillxa-${{ steps.get_version.outputs.TAG_NAME }}-ios-unsigned.ipa Payload
+
+      - name: Upload iOS IPA to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.get_version.outputs.TAG_NAME }}
+          files: |
+            pillxa-${{ steps.get_version.outputs.TAG_NAME }}-ios-unsigned.ipa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
