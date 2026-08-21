@@ -66,13 +66,6 @@ jobs:
             --build-name=${{ steps.get_version.outputs.VERSION }} \
             --build-number=${{ github.run_number }}
 
-      - name: Build Universal APK
-        working-directory: app
-        run: |
-          flutter build apk --release \
-            --build-name=${{ steps.get_version.outputs.VERSION }} \
-            --build-number=${{ github.run_number }}
-
       - name: Build Release AAB (App Bundle)
         working-directory: app
         run: |
@@ -90,8 +83,7 @@ jobs:
           cp app/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk release-assets/pillxa-${TAG}-android-armeabi-v7a.apk
           cp app/build/app/outputs/flutter-apk/app-x86_64-release.apk release-assets/pillxa-${TAG}-android-x86_64.apk
 
-          # Copy Universal APK & AAB
-          cp app/build/app/outputs/flutter-apk/app-release.apk release-assets/pillxa-${TAG}-android-universal.apk
+          # Copy AAB
           cp app/build/app/outputs/bundle/release/app-release.aab release-assets/pillxa-${TAG}-android.aab
 
           # Generate SHA256 Checksums
