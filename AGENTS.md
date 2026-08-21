@@ -1,61 +1,61 @@
-# Agent Development Guidelines
+# Agent 开发与协作规范指南
 
-## 1. Python Virtual Environment Requirement
+## 1. Python 虚拟环境要求
 
-- **Conda Environment Name**: `pillbox-backend`
-- **Mandatory Rule**: All backend development, dependency management, testing, and script execution **MUST** use the `pillbox-backend` Conda environment.
+- **Conda 环境名称**：`pillbox-backend`
+- **强制守则**：所有后端开发、依赖管理、测试执行以及脚本运行，**必须**使用 `pillbox-backend` Conda 环境。
 
-### Usage
+### 使用方法
 
 ```bash
 conda activate pillbox-backend
-# Or run commands directly:
+# 或直接通过 conda run 运行命令：
 conda run -n pillbox-backend <command>
 ```
 
 ---
 
-## 2. Git & Branching Workflow
+## 2. Git 分支管理与工作流
 
-- **Protected Main Branch**: The `main` branch is protected. Direct `git push origin main` is strictly prohibited.
-- **Feature Branch Strategy**: All modifications must be developed on dedicated branches using standard naming (e.g., `feature/<feature-name>`, `fix/<issue-name>`).
-- **Pull Request Protocol**: All changes must be merged into `main` via Pull Requests.
-- **Commit Message Convention**: Commit messages must follow Conventional Commits (e.g., `feat:`, `fix:`, `chore:`, `build:`, `ci:`, `test:`) with clear, descriptive summaries.
-- **Scope Separation**: Keep PRs atomic and independent. Infrastructure/CI changes and business features must not be arbitrarily mixed.
+- **主分支保护**：`main` 分支受保护，严禁直接执行 `git push origin main`。
+- **特性分支策略**：所有修改必须在专用分支上进行开发，遵循标准命名规范（例如：`feature/<feature-name>`、`fix/<issue-name>`、`docs/<docs-name>`、`refactor/<name>`）。
+- **Pull Request 协议**：所有修改必须通过 Pull Request 合并至 `main` 分支。
+- **Commit 提交信息规范**：提交信息必须遵循 Conventional Commits 规范（如：`feat:`、`fix:`、`chore:`、`build:`、`ci:`、`test:`、`docs:`、`refactor:`），并附带清晰的描述。
+- **职责解耦与原子化提交**：保持 PR 的原子性与独立性，基础设施/CI 配置与业务功能开发不得随意混在一个 PR 中提交。
 
 ---
 
-## 3. Continuous Integration & Quality Gate
+## 3. 持续集成与质量门禁（CI & Quality Gate）
 
-- **Mandatory CI Checks**: All Pull Requests targeting `main` must pass the GitHub Actions CI status check (`Run Pytest`).
-- **Zero Tolerance for Broken Tests**: A PR with failing tests or zero collected tests must not be merged.
-- **Local Pre-push Verification**: Always execute and verify the full test suite locally before pushing:
+- **强制 CI 检查**：所有以 `main` 为目标的 Pull Request 必须通过 GitHub Actions CI 状态检查（`Run Pytest`）。
+- **测试零容忍机制**：存在测试用例失败或测试用例数为 0 的 PR 严禁合并。
+- **本地预推送验证**：在推送代码前，务必在本地运行并通过全量测试套件：
   ```bash
   conda run -n pillbox-backend pytest backend/tests -v
   ```
 
 ---
 
-## 4. Container & Docker Deployment Guidelines
+## 4. 容器与 Docker 部署规范
 
-- **Docker Consistency**: Ensure `backend/Dockerfile` and `backend/docker-compose.yml` stay in sync with `backend/requirements.txt` and the Python 3.10 runtime environment.
-- **Port Mapping**:
-  - Container internal port: `8000`
-  - Host mapped port: `8011` (to avoid conflicts with other existing server services)
-- **Standard Server Operations**:
-  - Build & Start: `docker compose -f backend/docker-compose.yml up -d --build` (或进入 `backend` 目录执行 `docker compose up -d --build`)
-  - Check Status: `docker compose -f backend/docker-compose.yml ps`
-  - View Logs: `docker compose -f backend/docker-compose.yml logs -f backend`
-  - Stop Service: `docker compose -f backend/docker-compose.yml down`
+- **Docker 一致性**：确保 `backend/Dockerfile` 与 `backend/docker-compose.yml` 始终与 `backend/requirements.txt` 及 Python 3.10 运行时环境保持同步一致。
+- **端口映射规范**：
+  - 容器内部端口：`8000`
+  - 宿主机映射端口：`8011`（避免与服务器上其他已有服务端口冲突）
+- **标准服务器运维指令**：
+  - 构建并后台启动：`docker compose -f backend/docker-compose.yml up -d --build`（或进入 `backend` 目录执行 `docker compose up -d --build`）
+  - 查看容器状态：`docker compose -f backend/docker-compose.yml ps`
+  - 查看后端日志：`docker compose -f backend/docker-compose.yml logs -f backend`
+  - 停止服务容器：`docker compose -f backend/docker-compose.yml down`
 
 ---
 
-## 5. Server Public Access & Reverse Proxy Architecture
+## 5. 服务器公网访问与反向代理架构
 
-- **Public Base URL**: `https://ixd.sjtu.edu.cn/pillxa-demo`
-- **Architecture Topology**:
-  `Client (HTTPS)` -> `Nginx (Port 443 / 80)` -> `Host (127.0.0.1:8011)` -> `Docker Container (Port 8000)`
-- **Nginx Reverse Proxy Rule**:
+- **公网访问 Base URL**：`https://ixd.sjtu.edu.cn/pillxa-demo`
+- **系统网络拓扑**：
+  `客户端 (HTTPS)` -> `Nginx (Port 443 / 80)` -> `宿主机 (127.0.0.1:8011)` -> `Docker 容器 (Port 8000)`
+- **Nginx 反向代理配置规则**：
   ```nginx
   location /pillxa-demo/ {
       proxy_pass http://127.0.0.1:8011/;
@@ -65,6 +65,6 @@ conda run -n pillbox-backend <command>
       proxy_set_header X-Forwarded-Proto $scheme;
   }
   ```
-- **Public Verification Endpoints**:
-  - Health Check: `curl -i https://ixd.sjtu.edu.cn/pillxa-demo/health`
-  - Today's Medication: `curl -i https://ixd.sjtu.edu.cn/pillxa-demo/medications/today`
+- **公网服务验证端点**：
+  - 健康检查接口：`curl -i https://ixd.sjtu.edu.cn/pillxa-demo/health`
+  - 今日用药计划接口：`curl -i https://ixd.sjtu.edu.cn/pillxa-demo/medications/today`
