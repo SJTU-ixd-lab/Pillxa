@@ -161,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceVariant.withOpacity(0.4),
+                color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -236,7 +236,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.12),
+                    color: statusColor.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(statusIcon, color: statusColor, size: 28),
@@ -372,7 +372,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: item.status == 'completed' ? Colors.green : Colors.orange,
                         ),
                       ),
-                      backgroundColor: (item.status == 'completed' ? Colors.green : Colors.orange).withOpacity(0.1),
+                      backgroundColor: (item.status == 'completed' ? Colors.green : Colors.orange).withValues(alpha: 0.1),
                       side: BorderSide.none,
                     ),
                   );
