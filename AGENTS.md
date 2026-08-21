@@ -53,3 +53,32 @@ conda run -n pillbox-backend <command>
 ---
 
 ## 三、 APP 客户端开发规范
+
+### 1. 技术栈与框架规范
+
+- **开发框架**：Flutter (Dart 3.x)
+- **工程目录**：`app/`
+- **依赖管理**：所有客户端依赖统一在 `app/pubspec.yaml` 中声明，禁止在根目录混杂前端包管理文件。
+
+#### 常用命令
+
+```bash
+cd app
+# 获取依赖
+flutter pub get
+# 本地调试运行
+flutter run
+# 运行客户端测试
+flutter test
+```
+
+### 2. 网络与 API 交互规范
+
+- **服务分层**：所有与云端后端的 HTTP 接口交互必须统一封装在 `app/lib/services/` 目录下（如 `ApiService`）。
+- **默认 Base URL**：生产/演示环境默认连接公网反代地址 `https://ixd.sjtu.edu.cn/pillxa-demo`。
+- **数据模型**：所有 JSON 解析与实体映射统一放在 `app/lib/models/` 目录，必须包含健壮的 `fromJson` 解析与空值兜底。
+
+### 3. 测试与质量验证
+
+- 客户端单元测试与 Widget 测试统一放在 `app/test/` 目录。
+- 提交前应在 `app/` 目录下执行并通过 `flutter test`。
