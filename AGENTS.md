@@ -1,6 +1,6 @@
-# Agent 开发与协作规范指南
+# Agent 开发规范指南
 
-## 一、 通用协作规范（Git 与 CI）
+## 一、 通用协作规范
 
 ### 1. Git 分支管理与工作流
 
@@ -8,7 +8,6 @@
 - **特性分支策略**：所有修改必须在专用分支上进行开发，遵循标准命名规范（例如：`feature/<feature-name>`、`fix/<issue-name>`、`docs/<docs-name>`、`refactor/<name>`）。
 - **Pull Request 协议**：所有修改必须通过 Pull Request 合并至 `main` 分支。
 - **Commit 提交信息规范**：提交信息必须遵循 Conventional Commits 规范（如：`feat:`、`fix:`、`chore:`、`build:`、`ci:`、`test:`、`docs:`、`refactor:`），并附带清晰的描述。
-- **职责解耦与原子化提交**：保持 PR 的原子性与独立性，基础设施/CI 配置与业务功能开发不得随意混在一个 PR 中提交。
 
 ### 2. 持续集成与质量门禁（CI & Quality Gate）
 
@@ -17,7 +16,7 @@
 
 ---
 
-## 二、 后端开发与部署规范（Backend）
+## 二、 后端开发与部署规范
 
 ### 1. Python 虚拟环境要求
 
@@ -51,33 +50,6 @@ conda run -n pillbox-backend <command>
   - 查看后端日志：`docker compose -f backend/docker-compose.yml logs -f backend`
   - 停止服务容器：`docker compose -f backend/docker-compose.yml down`
 
-### 4. 服务器公网访问与反向代理架构
-
-- **公网访问 Base URL**：`https://ixd.sjtu.edu.cn/pillxa-demo`
-- **系统网络拓扑**：
-  `客户端 (HTTPS)` -> `Nginx (Port 443 / 80)` -> `宿主机 (127.0.0.1:8011)` -> `Docker 容器 (Port 8000)`
-- **Nginx 反向代理配置规则**：
-  ```nginx
-  location /pillxa-demo/ {
-      proxy_pass http://127.0.0.1:8011/;
-      proxy_set_header Host $host;
-      proxy_set_header X-Real-IP $remote_addr;
-      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      proxy_set_header X-Forwarded-Proto $scheme;
-  }
-  ```
-- **公网服务验证端点**：
-  - 健康检查接口：`curl -i https://ixd.sjtu.edu.cn/pillxa-demo/health`
-  - 今日用药计划接口：`curl -i https://ixd.sjtu.edu.cn/pillxa-demo/medications/today`
-
 ---
 
-## 三、 APP 客户端开发规范（App - 待补充）
-
-*(后续开发 APP 客户端时在此补充技术栈选型、依赖管理、调试构建与代码规范)*
-
----
-
-## 四、 硬件固件开发规范（Firmware - 待补充）
-
-*(后续开发硬件固件时在此补充 ESP32 芯片环境、烧录流程与通信协议规范)*
+## 三、 APP 客户端开发规范
