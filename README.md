@@ -13,17 +13,16 @@
 
 ```text
 Pillxa/
-├── backend/            # 后端服务（FastAPI 业务逻辑、依赖清单、测试套件与 Docker 配置）
+├── backend/            # 后端服务（FastAPI 业务逻辑、依赖清单、测试套件与 Docker 部署）
 ├── app/                # 用户客户端（移动端 / 前端应用，规划中）
 ├── firmware/           # 硬件固件（智能药盒嵌入式控制程序，规划中）
-├── docker-compose.yml  # Docker 容器编排配置
 ├── AGENTS.md           # 开发者与 Agent 协作规范
 └── README.md           # 项目主说明文档
 ```
 
 ### 主要模块说明
 
-- **`backend/`**：基于 FastAPI 的后端服务，负责用药计划数据分发、设备状态同步与服务健康监测；内置后端专属依赖（`backend/requirements.txt`）与接口自动化测试套件（`backend/tests/`）。
+- **`backend/`**：基于 FastAPI 的后端服务，负责用药计划数据分发、设备状态同步与服务健康监测；内置后端专属依赖（`backend/requirements.txt`）、接口自动化测试套件（`backend/tests/`）以及容器化编排文件（`backend/docker-compose.yml`）。
 - **`app/`**：用户客户端，提供用药计划管理、服药提醒推送与药盒设备绑定交互。
 - **`firmware/`**：智能药盒硬件固件，负责出药控制、传感器数据采集与声光提醒。
 
@@ -68,20 +67,23 @@ conda run -n pillbox-backend pytest backend/tests -v
 
 ## 🐳 Docker 容器化部署 (Docker Deployment)
 
-系统提供开箱即用的 Docker 容器编排支持：
+后端提供开箱即用的 Docker 容器编排支持：
 
 ```bash
-# 构建并后台启动容器
-docker compose up -d --build
+# 构建并后台启动容器（根目录下指定配置文件）
+docker compose -f backend/docker-compose.yml up -d --build
+
+# 或进入后端目录直接启动
+# cd backend && docker compose up -d --build
 
 # 查看容器运行状态
-docker compose ps
+docker compose -f backend/docker-compose.yml ps
 
 # 查看后端实时日志
-docker compose logs -f backend
+docker compose -f backend/docker-compose.yml logs -f backend
 
 # 停止容器服务
-docker compose down
+docker compose -f backend/docker-compose.yml down
 ```
 
 ---

@@ -38,15 +38,15 @@ conda run -n pillbox-backend <command>
 
 ## 4. Container & Docker Deployment Guidelines
 
-- **Docker Consistency**: Ensure `backend/Dockerfile` and `docker-compose.yml` stay in sync with `backend/requirements.txt` and the Python 3.10 runtime environment.
+- **Docker Consistency**: Ensure `backend/Dockerfile` and `backend/docker-compose.yml` stay in sync with `backend/requirements.txt` and the Python 3.10 runtime environment.
 - **Port Mapping**:
   - Container internal port: `8000`
   - Host mapped port: `8011` (to avoid conflicts with other existing server services)
 - **Standard Server Operations**:
-  - Build & Start: `docker compose up -d --build`
-  - Check Status: `docker compose ps`
-  - View Logs: `docker compose logs -f backend`
-  - Stop Service: `docker compose down`
+  - Build & Start: `docker compose -f backend/docker-compose.yml up -d --build` (或进入 `backend` 目录执行 `docker compose up -d --build`)
+  - Check Status: `docker compose -f backend/docker-compose.yml ps`
+  - View Logs: `docker compose -f backend/docker-compose.yml logs -f backend`
+  - Stop Service: `docker compose -f backend/docker-compose.yml down`
 
 ---
 

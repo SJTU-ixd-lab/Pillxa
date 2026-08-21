@@ -7,12 +7,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 # 复制依赖定义并安装
-COPY backend/requirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # 复制后端业务代码
-COPY backend/ ./backend
+COPY . ./backend
 
 EXPOSE 8000
 
