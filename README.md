@@ -1,4 +1,4 @@
-# Pillxa - 智能药盒系统 (Smart Pillbox System)
+# Pillxa - 智能药盒APP
 
 ![Python](https://img.shields.io/badge/Python-3.10-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-green.svg)
@@ -9,57 +9,26 @@
 
 ---
 
-## 🏗️ 目录结构与模块说明 (Project Structure)
-
-本项目采用多端协同的工程结构，整体目录组织如下：
+## 🏗️ 目录结构 (Project Structure)
 
 ```text
 Pillxa/
-├── backend/                  # 后端服务核心源码 (FastAPI)
-│   ├── Dockerfile            # 后端容器构建定义文件 (Python 3.10-slim)
-│   ├── __init__.py
-│   └── main.py               # 服务入口、数据模型与 API 路由实现
-├── tests/                    # 自动化测试套件
-│   ├── __init__.py
-│   └── test_medications.py   # 健康检查与用药计划接口自动化测试
-├── app/                      # 移动端 / 客户端应用程序模块 (规划中)
-│   └── README.md             # 客户端模块说明
-├── firmware/                 # 智能药盒硬件嵌入式固件模块 (规划中)
-│   └── README.md             # 硬件固件模块说明
-├── .github/                  # GitHub 工作流与配置
-│   └── workflows/
-│       └── ci.yml            # CI 持续集成配置 (Pytest 自动化检查)
-├── .dockerignore             # Docker 构建忽略文件
-├── .gitignore                # Git 版本控制忽略文件
-├── docker-compose.yml        # Docker Compose 容器编排配置
-├── requirements.txt          # Python 运行时及开发依赖清单
-├── pytest.ini                # Pytest 测试路径与运行配置
-├── AGENTS.md                 # 开发者与 AI Agent 协作规范与工程守则
-└── README.md                 # 项目全局说明文档 (本文档)
+├── backend/            # 后端服务（FastAPI 业务逻辑与 Docker 构建配置）
+├── app/                # 用户客户端（移动端 / 前端应用，规划中）
+├── firmware/           # 硬件固件（智能药盒嵌入式控制程序，规划中）
+├── tests/              # 自动化测试套件
+├── docker-compose.yml  # Docker 容器编排配置
+├── requirements.txt    # 后端依赖清单
+├── AGENTS.md           # 开发者与 Agent 协作规范
+└── README.md           # 项目主说明文档
 ```
 
-### 核心模块职责解析
+### 主要模块说明
 
-1. **`backend/` (后端服务)**
-   - 基于 **FastAPI** 构建的高性能异步 RESTful API 服务。
-   - 核心功能：负责用药计划数据管理、定时计划分发、状态反馈以及服务健康监测。
-   - 包含专用的轻量级 `Dockerfile`，支持一键容器化交付。
-
-2. **`tests/` (自动化测试)**
-   - 基于 **pytest** 与 `httpx.TestClient` 实现的端到端 API 测试。
-   - 覆盖服务存活探针、返回数据模型结构及字段语义校验。
-
-3. **`app/` (用户客户端 - 规划中)**
-   - 用户移动端/小程序/Web 端应用源码目录。
-   - 规划功能：个人用药计划设定、服药提醒推送、药盒设备绑定与健康数据可视化。
-
-4. **`firmware/` (硬件固件 - 规划中)**
-   - 智能药盒硬件嵌入式微控制器程序目录。
-   - 规划功能：分仓出药控制、传感器状态检测、Wi-Fi/蓝牙配网通信及声光提醒交互。
-
-5. **工程配置与持续集成**
-   - `.github/workflows/ci.yml`：自动化质量门禁，每次 PR 与 Push 均自动触发全量测试。
-   - `docker-compose.yml`：标准容器化部署配置，将容器内 `8000` 端口映射至宿主机 `8011` 端口。
+- **`backend/`**：基于 FastAPI 的后端服务，负责用药计划数据分发、设备状态同步与服务健康监测。
+- **`app/`**：用户客户端，提供用药计划管理、服药提醒推送与药盒设备绑定交互。
+- **`firmware/`**：智能药盒硬件固件，负责出药控制、传感器数据采集与声光提醒。
+- **`tests/`**：后端接口自动化测试，保障服务稳定与数据模型一致。
 
 ---
 
