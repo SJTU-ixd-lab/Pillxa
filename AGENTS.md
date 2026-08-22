@@ -4,9 +4,9 @@
 
 ### 1. Git 分支管理与工作流
 
-- **主分支保护**：`main` 分支受保护，严禁直接执行 `git push origin main`。
+- **⚠️ 主分支红线（严禁直推）**：`main` 分支维护稳定的生产/演示代码版本。由于所属组织私有仓库可能无法通过平台设置硬性主分支保护规则，**严禁 Agent 直接向 `main` 分支执行 `git push` 提交**。
 - **特性分支策略**：所有修改必须在专用分支上进行开发，遵循标准命名规范（例如：`feature/<feature-name>`、`fix/<issue-name>`、`docs/<docs-name>`、`refactor/<name>`）。
-- **Pull Request 协议**：所有修改必须通过 Pull Request 合并至 `main` 分支。
+- **Pull Request 强制协议**：所有代码变更必须先 push 到对应的特性分支，然后通过 Pull Request 审查后合并至 `main` 分支。
 - **Commit 提交信息规范**：提交信息必须遵循 Conventional Commits 规范（如：`feat:`、`fix:`、`chore:`、`build:`、`ci:`、`test:`、`docs:`、`refactor:`），并附带清晰的描述。
 
 ### 2. 持续集成与质量门禁（CI & Quality Gate）
