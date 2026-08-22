@@ -2,7 +2,7 @@
 #include "ulp_lp_core_utils.h"
 #include "ulp_lp_core_gpio.h"
 
-#include "../peripherals.hpp"
+#include "../include/peripherals.hpp"
 
 static int debounce_count = 0;
 bool gpio_level_previous = false;
