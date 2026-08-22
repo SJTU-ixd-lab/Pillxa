@@ -17,7 +17,6 @@
 ---
 
 ## 二、 后端开发与部署规范
-
 ### 1. Python 虚拟环境要求
 
 - **Conda 环境名称**：`pillbox-backend`
@@ -49,6 +48,25 @@ conda run -n pillbox-backend <command>
   - 查看容器状态：`docker compose -f backend/docker-compose.yml ps`
   - 查看后端日志：`docker compose -f backend/docker-compose.yml logs -f backend`
   - 停止服务容器：`docker compose -f backend/docker-compose.yml down`
+
+### 4. 服务器公网访问与反向代理架构
+
+- **公网访问 Base URL**：`https://ixd.sjtu.edu.cn/pillxa-demo`
+- **系统网络拓扑**：
+  `客户端 (HTTPS)` ➔ `Nginx (Port 443 / 80)` ➔ `宿主机 (127.0.0.1:8011)` ➔ `Docker 容器 (Port 8000)`
+- **Nginx 反向代理配置规则**：
+  ```nginx
+  location /pillxa-demo/ {
+      proxy_pass http://127.0.0.1:8011/;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+  }
+  ```
+- **公网服务验证端点**：
+  - 健康检查接口：`curl -i https://ixd.sjtu.edu.cn/pillxa-demo/health`
+  - 今日用药计划接口：`curl -i https://ixd.sjtu.edu.cn/pillxa-demo/medications/today`
 
 ---
 
@@ -82,3 +100,40 @@ flutter test
 
 - 客户端单元测试与 Widget 测试统一放在 `app/test/` 目录。
 - 提交前应在 `app/` 目录下执行并通过 `flutter test`。
+
+---
+
+## 四、 自动化持续交付与部署规范 (CI/CD Pipeline)
+
+本项目已建立完整的全自动化 CI/CD 流水线，分为**后端服务器自动化部署**与**APP 客户端持续交付**两部分。
+
+### 1. 后端服务器持续部署 (Backend Server CD)
+
+- **工作流文件**：`.github/workflows/deploy.yml`
+- **部署架构**：基于 **GitHub Actions Self-Hosted Runner**（运行于学校内网服务器的后台守护进程），无需开放外网 22 SSH 端口，通过出站长连接实现安全拉取与部署。
+- **触发机制**：
+  - **自动触发**：代码合并至 `main` 分支且修改涉及 `backend/**` 或部署配置时。
+  - **手动触发**：支持在 GitHub Actions 页面通过 `workflow_dispatch` 手动一键部署。
+- **流水线执行链路**：
+  1. **代码同步**：自托管 Runner 自动增量拉取最新代码至工作区。
+  2. **环境门禁**：自动在 `pillbox-backend` Conda 环境中执行全量单元测试（Pytest 失败则立即中断部署）。
+  3. **容器热更**：自动执行 `docker compose -f backend/docker-compose.yml up -d --build --remove-orphans` 完成容器重新构建与无缝重启。
+  4. **状态核验**：自动输出 `docker compose ps` 容器健康状态，后端服务继续通过宿主机 `8011` 端口对外提供服务（由 Nginx 反代至 `https://ixd.sjtu.edu.cn/pillxa-demo`）。
+
+### 2. APP 客户端持续交付与发布 (App Client CD & Release)
+
+#### (1) 预览版自动构建与归档 (Android Preview Build)
+- **工作流文件**：`.github/workflows/build.yml`
+- **触发机制**：代码合并至 `main` 分支时自动触发。
+- **构建产物**：自动编译 Android Debug APK，并在 GitHub Actions 中作为 Artifact 归档保留 14 天，供内部快速测试验证。
+
+#### (2) 正式发布流水线 (Android Formal Release)
+- **工作流文件**：`.github/workflows/release.yml`
+- **触发机制**：
+  - 推送符合语义化版本规范的 Git Tag（如 `v1.0.0`、`v1.0.1`）。
+  - 支持在 GitHub Actions 页面手动指定 Tag 版本号触发。
+- **自动化构建产物**：
+  - **多架构分包 APK**：自动生成适配主流 CPU 架构的轻量 APK（`arm64-v8a`、`armeabi-v7a`、`x86_64`）。
+  - **应用包 Bundle**：自动生成适用于商店分发的 `aab` 文件。
+  - **安全校验**：自动计算所有发布产物的 `sha256sum` 校验和。
+  - **自动 Release 发布**：自动创建 GitHub Release 页面，附带更新日志并将安装包直接挂载至 Release Assets 供用户下载。
