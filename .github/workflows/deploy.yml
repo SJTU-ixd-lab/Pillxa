@@ -1,0 +1,36 @@
+name: Deploy Backend to School Server
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy-backend:
+    name: Deploy to Self-Hosted Server
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Backend Pytest Verification
+        shell: bash -l {0}
+        run: |
+          if command -v conda &> /dev/null; then
+            conda run -n pillbox-backend pytest backend/tests -v
+          else
+            pytest backend/tests -v
+          fi
+
+      - name: Build and Restart Docker Containers
+        run: |
+          docker compose -f backend/docker-compose.yml up -d --build --remove-orphans
+
+      - name: Verify Container Status
+        run: |
+          docker compose -f backend/docker-compose.yml ps
