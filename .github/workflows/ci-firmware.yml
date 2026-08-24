@@ -1,0 +1,27 @@
+name: CI (Firmware)
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths: &path_filter
+      - firmware/**
+      - .github/workflows/*-firmware.yml
+  push:
+    branches: [ main ]
+    paths: *path_filter
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Firmware
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: esp-idf build
+        uses: espressif/esp-idf-ci-action@v1
+        with:
+          esp_idf_version: v5.5
+          target: esp32c6
+          path: firmware
