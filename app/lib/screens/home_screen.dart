@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../app_state.dart';
+import '../theme/app_theme.dart';
+import 'board_overview_screen.dart';
 import '../models/health_model.dart';
 import '../models/medication_model.dart';
 import '../services/api_service.dart';
@@ -12,6 +15,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ApiService _apiService = ApiService();
+  final AppState _dispensingAppState = AppState.demo();
 
   bool _isCheckingHealth = false;
   HealthStatus? _healthStatus;
@@ -31,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _apiService.dispose();
+    _dispensingAppState.dispose();
     super.dispose();
   }
 
@@ -126,6 +131,17 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _openDispensingFlow() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => Theme(
+          data: AppTheme.light,
+          child: BoardOverviewScreen(appState: _dispensingAppState),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -161,17 +177,20 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                color: theme.colorScheme.surfaceContainerHighest
+                    .withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.cloud_outlined, size: 20, color: Colors.grey),
+                  const Icon(Icons.cloud_outlined,
+                      size: 20, color: Colors.grey),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       '服务器: ${_apiService.baseUrl}',
-                      style: theme.textTheme.bodySmall?.copyWith(color: Colors.black87),
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(color: Colors.black87),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -179,6 +198,30 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 16),
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: ListTile(
+                contentPadding: const EdgeInsets.all(16),
+                leading: const CircleAvatar(
+                  backgroundColor: Color(0xFFE8F5E9),
+                  child: Icon(
+                    Icons.grid_view_rounded,
+                    color: Color(0xFF1B5E20),
+                  ),
+                ),
+                title: const Text(
+                  '进入排药流程',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: const Text('创建吃药计划、识别处方并完成 4×7 格子板排药'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: _openDispensingFlow,
+              ),
+            ),
+            const SizedBox(height: 20),
 
             // 1. 服务健康状态探测卡片 (/health)
             _buildHealthCheckCard(theme),
@@ -256,7 +299,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 4),
                       Text(
                         statusSubtitle,
-                        style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
+                        style: theme.textTheme.bodySmall
+                            ?.copyWith(color: Colors.grey[700]),
                       ),
                     ],
                   ),
@@ -272,13 +316,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? const SizedBox(
                         width: 16,
                         height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white),
                       )
                     : const Icon(Icons.refresh, size: 18),
                 label: Text(_isCheckingHealth ? '探测中...' : '测试 /health 连通性'),
                 style: FilledButton.styleFrom(
                   backgroundColor: Colors.teal,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
                 ),
               ),
             ),
@@ -302,11 +348,13 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.calendar_today_outlined, size: 20, color: Colors.teal),
+                    const Icon(Icons.calendar_today_outlined,
+                        size: 20, color: Colors.teal),
                     const SizedBox(width: 8),
                     Text(
                       '今日用药计划 (/medications/today)',
-                      style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                      style: theme.textTheme.titleSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -356,7 +404,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       backgroundColor: Colors.teal.shade50,
                       child: Text(
                         '${item.id}',
-                        style: const TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            color: Colors.teal, fontWeight: FontWeight.bold),
                       ),
                     ),
                     title: Text(
@@ -369,10 +418,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         item.status == 'completed' ? '已服用' : '待服药',
                         style: TextStyle(
                           fontSize: 12,
-                          color: item.status == 'completed' ? Colors.green : Colors.orange,
+                          color: item.status == 'completed'
+                              ? Colors.green
+                              : Colors.orange,
                         ),
                       ),
-                      backgroundColor: (item.status == 'completed' ? Colors.green : Colors.orange).withValues(alpha: 0.1),
+                      backgroundColor: (item.status == 'completed'
+                              ? Colors.green
+                              : Colors.orange)
+                          .withValues(alpha: 0.1),
                       side: BorderSide.none,
                     ),
                   );
